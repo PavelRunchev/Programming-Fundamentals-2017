@@ -17,6 +17,7 @@ namespace snowwhite
         static void Main()
         {
             List<Dwarf> dataDwarfs = new List<Dwarf>();
+            var colors = new Dictionary<string, int>();
 
             string inputDwarfHats;
             while ((inputDwarfHats = Console.ReadLine()) != "Once upon a time")
@@ -27,10 +28,10 @@ namespace snowwhite
                 string name = tokens[0];
                 string hatColor = tokens[1];
                 int physics = int.Parse(tokens[2]);
-                if(dataDwarfs.Any(dwarf => dwarf.Name == name && dwarf.HatColor == hatColor))
+                if (dataDwarfs.Any(dwarf => dwarf.Name == name && dwarf.HatColor == hatColor))
                 {
                     var currentDwarf = dataDwarfs.FirstOrDefault(d => d.Name == name && d.HatColor == hatColor);
-                    if(currentDwarf.Physics < physics)
+                    if (currentDwarf.Physics < physics)
                     {
                         currentDwarf.Physics = physics;
                     }
@@ -42,13 +43,23 @@ namespace snowwhite
                     dwarf.HatColor = hatColor;
                     dwarf.Physics = physics;
                     dataDwarfs.Add(dwarf);
+                    if (!colors.ContainsKey(hatColor))
+                    {
+                        colors.Add(hatColor, 0);
+                    }
+                    colors[hatColor]++;
                 }
             }
 
-            foreach (var dwarf in dataDwarfs.OrderByDescending(a => a.Physics).ThenByDescending(f => f.HatColor.Count()))
+            var orderedDwarfs = dataDwarfs
+                .OrderByDescending(d => d.Physics)
+                .ThenByDescending(color => colors[color.HatColor])
+                .ToList();
+
+            foreach (var dwarf in orderedDwarfs)
             {
                 Console.WriteLine($"({dwarf.HatColor}) {dwarf.Name} <-> {dwarf.Physics}");
-            }          
+            }
         }
     }
 }
