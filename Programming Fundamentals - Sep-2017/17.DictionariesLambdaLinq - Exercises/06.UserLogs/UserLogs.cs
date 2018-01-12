@@ -6,73 +6,48 @@ using System.Threading.Tasks;
 
 namespace UserLogs
 {
-    class User
-    {
-        public string Name { get; set; }
-        public Dictionary<string, int> Ip { get; set; }
-    }
     class UserLogs
     {
         static void Main()
         {
-            var dataLogs = new List<User>();
-
-            string input = Console.ReadLine();
-            while (input != "end")
+           var dataUsers = new Dictionary<string, Dictionary<string, int>>();
+            string input;
+            while ((input = Console.ReadLine()) != "end")
             {
-                string[] tokens = input.Split(' ');
-                int indexIp = tokens[0].IndexOf("=");
-                string ip = tokens[0].Substring(indexIp + 1);
-                int indexUser = tokens[2].IndexOf("=");
-                string user = tokens[2].Substring(indexUser + 1);
-
-                if (!dataLogs.Any(n => n.Name == user))
+                string[] tokens = input.Split();
+                string ip = tokens[0]
+                    .Split(new string[] { "IP=" },
+                    StringSplitOptions.RemoveEmptyEntries).First();
+                string user = tokens[2].Split(new string[] { "user=" },
+                    StringSplitOptions.RemoveEmptyEntries).First();
+                if (!dataUsers.ContainsKey(user))
                 {
-                    User userLog = new User();
-                    userLog.Name = user;
-                    userLog.Ip = new Dictionary<string, int>();
-                    userLog.Ip.Add(ip, 1);
-                    dataLogs.Add(userLog);
+                    dataUsers.Add(user, new Dictionary<string, int>());
                 }
-                else
+                if (!dataUsers[user].ContainsKey(ip))
                 {
-                    int index = dataLogs.IndexOf(dataLogs.Find(c => c.Name == user));
-                    if (dataLogs[index].Ip.ContainsKey(ip))
-                    {
-                        dataLogs[index].Ip[ip]++;
-                    }
-                    else
-                    {
-                        dataLogs[index].Ip.Add(ip, 1);
-                    }
+                    dataUsers[user].Add(ip, 0);
                 }
-
-                input = Console.ReadLine();
+                dataUsers[user][ip]++;
             }
 
-            dataLogs = dataLogs
-                .OrderBy(name => name.Name)
-                .ToList();
-
-            foreach (var user in dataLogs)
+            foreach (var user in dataUsers.OrderBy(name => name.Key))
             {
-                Console.WriteLine($"{user.Name}: ");
-
-                bool isComma = false;
-                foreach (var ipAndCount in user.Ip)
+                string userName = user.Key;
+                Console.WriteLine($"{userName}:");
+                int count = 0;
+                foreach (var ip in user.Value)
                 {
-                    if (isComma)
+                    ++count;
+                    if(count != user.Value.Count)
                     {
-                        Console.Write($", {ipAndCount.Key} => {ipAndCount.Value}");
+                        Console.Write($"{ip.Key} => {ip.Value}, ");
                     }
                     else
                     {
-                        Console.Write($"{ipAndCount.Key} => {ipAndCount.Value}");
-                        isComma = true;
-                    }
+                        Console.WriteLine($"{ip.Key} => {ip.Value}.");
+                    }                   
                 }
-                Console.Write(".");
-                Console.WriteLine();
             }
         }
     }

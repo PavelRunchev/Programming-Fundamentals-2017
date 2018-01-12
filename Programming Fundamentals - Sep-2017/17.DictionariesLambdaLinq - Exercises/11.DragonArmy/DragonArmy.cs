@@ -10,68 +10,45 @@ namespace DragonArmy
     {
         static void Main()
         {
-            var dataDragonsStats = new Dictionary<string, Dictionary<string, List<int>>>();
-
-            int numberOfLine = int.Parse(Console.ReadLine());
-            for (int i = 0; i < numberOfLine; i++)
+		var dataDragons = new Dictionary<string, Dictionary<string, List<int>>>();
+            var countOfDragons = int.Parse(Console.ReadLine());
+            for (int i = 0; i < countOfDragons; i++)
             {
-                string[] inputDragons = Console.ReadLine().Split(' ');
-                string type = inputDragons[0];
-                string name = inputDragons[1];
-                string damage = inputDragons[2];
-                string health = inputDragons[3];
-                string armor = inputDragons[4];
-                if (!dataDragonsStats.ContainsKey(type))
+                string[] inputDragon = Console.ReadLine().Split();
+                string type = inputDragon[0];
+                string name = inputDragon[1];
+                int damage = inputDragon[2] != "null" ? int.Parse(inputDragon[2]) : 45;
+                int health = inputDragon[3] != "null" ? int.Parse(inputDragon[3]) : 250;
+                int armor = inputDragon[4] != "null" ? int.Parse(inputDragon[4]) : 10;
+                if (!dataDragons.ContainsKey(type))
                 {
-                    dataDragonsStats.Add(type, new Dictionary<string, List<int>>());
+                    dataDragons.Add(type, new Dictionary<string, List<int>>());
                 }
-                if (!dataDragonsStats[type].ContainsKey(name))
+                if (!dataDragons[type].ContainsKey(name))
                 {
-                    dataDragonsStats[type].Add(name, new List<int>() { 0, 0, 0 });
+                    dataDragons[type].Add(name, new List<int>() { 0, 0, 0 });
                 }
-                if (damage == "null")
-                {
-                    dataDragonsStats[type][name][0] = 45;
-                }
-                else
-                {
-                    dataDragonsStats[type][name][0] = int.Parse(damage);
-                }
-                if (health == "null")
-                {
-                    dataDragonsStats[type][name][1] = 250;
-                }
-                else
-                {
-                    dataDragonsStats[type][name][1] = int.Parse(health);
-                }
-                if (armor == "null")
-                {
-                    dataDragonsStats[type][name][2] = 10;
-                }
-                else
-                {
-                    dataDragonsStats[type][name][2] = int.Parse(armor);
-                }
+                dataDragons[type][name][0] = damage;
+                dataDragons[type][name][1] = health;
+                dataDragons[type][name][2] = armor;
             }
 
-            foreach (var typeDragons in dataDragonsStats)
+            foreach (var type in dataDragons)
             {
-                string type = typeDragons.Key;
-                Dictionary<string, List<int>> listDragons = typeDragons.Value
-                    .OrderBy(n => n.Key)
-                    .ToDictionary(k => k.Key, v => v.Value);
-                double damageAverage = listDragons.Average(power => power.Value[0]);
-                double healthAverage = listDragons.Average(life => life.Value[1]);
-                double armorAverage = listDragons.Average(defence => defence.Value[2]);
-                Console.WriteLine($"{type}::({damageAverage:f2}/{healthAverage:f2}/{armorAverage:f2})");
-                foreach (var item in listDragons)
+                string typeDragon = type.Key;
+                double averageDamage = type.Value.Average(d => d.Value[0]);
+                double averageHealth = type.Value.Average(d => d.Value[1]);
+                double averageArmor = type.Value.Average(d => d.Value[2]);
+                Console.WriteLine($"{typeDragon}::({averageDamage:f2}/{averageHealth:f2}/{averageArmor:f2})");
+                foreach (var dragon in type.Value.OrderBy(d => d.Key))
                 {
-                    string nameDragon = item.Key;
-                    List<int> statDragon = item.Value;
-                    Console.WriteLine($"-{nameDragon} -> damage: {statDragon[0]}, health: {statDragon[1]}, armor: {statDragon[2]}");
+                    string name = dragon.Key;
+                    int damage = dragon.Value[0];
+                    int health = dragon.Value[1];
+                    int armor = dragon.Value[2];
+                    Console.WriteLine($"-{name} -> damage: {damage}, health: {health}, armor: {armor}");
                 }
-            }
-        }
+            }	
+        }    
     }
 }

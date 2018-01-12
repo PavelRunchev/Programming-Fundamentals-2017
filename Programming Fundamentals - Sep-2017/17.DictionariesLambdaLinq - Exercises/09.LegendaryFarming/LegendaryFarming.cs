@@ -10,73 +10,68 @@ namespace LegendaryFarming
     {
         static void Main()
         {
-            var dataItems = new Dictionary<string, string>
-            {
-                { "shards", "Shadowmourne" },
-                { "fragments", "Valanyr" },
-                { "motes", "Dragonwrath" }
+       		var dataJunks = new Dictionary<string, int>();
+            var dataLegendaryItem = new Dictionary<string, int> {
+                {"shards", 0 },
+                {"fragments", 0 },
+                {"motes", 0 }
             };
-            var dataUniqueItems = new Dictionary<string, int>
-            {
-                { "shards", 0 },
-                { "fragments", 0 },
-                { "motes", 0 }
-            };
-            var dataJunk = new Dictionary<string, int>();
 
-            bool isObtained = false;
-            string[] input = Console.ReadLine().ToLower().Split(' ');
-            while(true)
+            bool obtained = false;
+            while (true)
             {
-                for (int i = 0; i < input.Length; i+= 2)
+                string[] inputMaterials = Console.ReadLine().ToLower().Split(' ');
+                for (int i = 0; i < inputMaterials.Length; i += 2)
                 {
-                    int quantity = int.Parse(input[i]);
-                    string item = input[i + 1];
-                    if (dataItems.ContainsKey(item))
+                    int qunatity = int.Parse(inputMaterials[i]);
+                    string material = inputMaterials[i + 1];
+                    if (dataLegendaryItem.ContainsKey(material))
                     {
-                        dataUniqueItems[item] += quantity;
-                        if (dataUniqueItems[item] >= 250)
+                        dataLegendaryItem[material] += qunatity;
+                        if (dataLegendaryItem[material] >= 250)
                         {
-                            Console.WriteLine($"{dataItems[item]} obtained!");
-                            dataUniqueItems[item] -= 250;
-                            isObtained = true;
+
+                            if (material == "shards")
+                            {
+                                dataLegendaryItem[material] -= 250;
+                                Console.WriteLine("Shadowmourne obtained!");
+                            }
+                            else if (material == "fragments")
+                            {
+                                dataLegendaryItem[material] -= 250;
+                                Console.WriteLine("Valanyr obtained!");
+                            }
+                            else if (material == "motes")
+                            {
+                                dataLegendaryItem[material] -= 250;
+                                Console.WriteLine("Dragonwrath obtained!");
+                            }
+                            obtained = true;
                             break;
                         }
                     }
                     else
                     {
-                        if (!dataJunk.ContainsKey(item))
+                        if (!dataJunks.ContainsKey(material))
                         {
-                            dataJunk.Add(item, 0);
+                            dataJunks.Add(material, 0);
                         }
-                        dataJunk[item] += quantity;
+                        dataJunks[material] += qunatity;
                     }
-                }            
-
-                if(isObtained)
-                {
-                    break;
                 }
-                input = Console.ReadLine().ToLower().Split(' ');
+
+                if (obtained)
+                    break;
             }
 
-            var orderedUniqueItems = dataUniqueItems
-                .OrderBy(x => x.Key)
-                .OrderByDescending(a => a.Value)
-                .ToDictionary(k => k.Key, v => v.Value);
-
-            var orderedJunkItems = dataJunk
-                .OrderBy(s => s.Key)
-                .ToDictionary(c => c.Key, x => x.Value);
-
-            foreach (var uniqueItems in orderedUniqueItems)
+            foreach (var legendaryItem in dataLegendaryItem.OrderByDescending(q => q.Value).ThenBy(name => name.Key))
             {
-                Console.WriteLine($"{uniqueItems.Key}: {uniqueItems.Value}");
+                Console.WriteLine($"{legendaryItem.Key}: {legendaryItem.Value}");
             }
 
-            foreach (var items in orderedJunkItems)
+            foreach (var junk in dataJunks.OrderBy(j => j.Key))
             {
-                Console.WriteLine($"{items.Key}: {items.Value}");
+                Console.WriteLine($"{junk.Key}: {junk.Value}");
             }
         }
     }

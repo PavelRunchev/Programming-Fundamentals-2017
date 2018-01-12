@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace СръбскоUnleashed
 {
@@ -10,63 +10,36 @@ namespace СръбскоUnleashed
     {
         static void Main()
         {
-            var dataSingers = new Dictionary<string, Dictionary<string, long>>();
-            string input = Console.ReadLine();
-            while(input != "End")
-            {                
-                if (input.Contains(" @"))
+            var data = new Dictionary<string, Dictionary<string, decimal>>();
+            string pattern = @"^(?<song>.+) @(?<venues>.+) (?<price>[0-9]+) (?<count>[0-9]+)$";
+            string input;
+            while ((input = Console.ReadLine()) != "End")
+            {
+                Match matches = Regex.Match(input, pattern);
+                if (matches.Success)
                 {
-                    int index = input.IndexOf(" @");
-                    string singer = input.Substring(0, index);
-                    string tokens = input.Substring(index + 2);
-
-                    string[] unleashed = tokens.Split();
-                    if (unleashed.Length > 2)
+                    string song = matches.Groups["song"].Value;
+                    string venues = matches.Groups["venues"].Value;
+                    decimal price = decimal.Parse(matches.Groups["price"].Value);
+                    decimal count = decimal.Parse(matches.Groups["count"].Value);
+                    if (!data.ContainsKey(venues))
                     {
-                        string venue = string.Empty;
-                        List<int> number = new List<int>();
-                        for (int i = 0; i < unleashed.Length; i++)
-                        {
-                            int num;
-                            if (int.TryParse(unleashed[i], out num))
-                            {
-                                number.Add(num);
-                            }
-                            else
-                            {
-                                venue += unleashed[i] + " ";
-                            }
-                        }
-                        venue = venue.TrimEnd();
-                        if (number.Count == 2)
-                        {
-                            int ticketsPrice = number[0];
-                            int counts = number[1];
-                            if (!dataSingers.ContainsKey(venue))
-                            {
-                                dataSingers.Add(venue, new Dictionary<string, long>());
-                            }
-                            if (!dataSingers[venue].ContainsKey(singer))
-                            {
-                                dataSingers[venue].Add(singer, 0);
-                            }
-                            dataSingers[venue][singer] += (long)(ticketsPrice * counts);
-                        }               
+                        data.Add(venues, new Dictionary<string, decimal>());
                     }
+                    if (!data[venues].ContainsKey(song))
+                    {
+                        data[venues].Add(song, 0);
+                    }
+                    data[venues][song] += price * count;
                 }
-                input = Console.ReadLine();
             }
 
-            foreach (var venues in dataSingers)
+            foreach (var venue in data)
             {
-                Console.WriteLine($"{venues.Key}");
-                var singers = venues.Value.
-                    OrderByDescending(u => u.Value)
-                    .ToDictionary(k => k.Key, v => v.Value);
-                
-                foreach (var solo in singers)
+                Console.WriteLine($"{venue.Key}");
+                foreach (var song in venue.Value.OrderByDescending(v => v.Value))
                 {
-                    Console.WriteLine($"#  {solo.Key} -> {solo.Value}");
+                    Console.WriteLine($"#  {song.Key} -> {song.Value}");
                 }
             }
         }
